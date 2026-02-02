@@ -29,6 +29,7 @@
 * **🖥️ Native Experience:** Packaged with **PyWebView** to run as a standalone Windows app (no browser UI).
 * **🔒 Security First:** Your API Key is never stored in the source code. It uses a secure session login.
 * **🛡️ Smart Filtering:** Ignores irrelevant content like "APA Guidelines" tables and focuses only on the actual bibliography.
+* **👁️ Built-in PDF Viewer:** Inspect the original document without leaving the app.
 
 ### 🔑 Prerequisites
 
@@ -36,6 +37,19 @@ To use this app, you need a **Groq API Key** (It's free!).
 1. Go to **[console.groq.com/keys](https://console.groq.com/keys)**.
 2. Login and click "Create API Key".
 3. Copy your key (starts with `gsk_...`) and paste it into the app.
+
+---
+
+### 🛠️ Tech Stack
+
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Language** | Python 3.10 | Core logic |
+| **Frontend** | Streamlit | UI & State Management |
+| **AI Inference** | Groq API | Ultra-low latency Llama 3 access |
+| **PDF Engine** | PyMuPDF (Fitz) | High-performance PDF parsing |
+| **Desktop Wrapper** | PyWebView | Native window container |
+| **Build Tool** | PyInstaller | Compilation to `.exe` |
 
 ---
 
@@ -50,6 +64,7 @@ To use this app, you need a **Groq API Key** (It's free!).
 * **🖥️ Experiencia Nativa:** Empaquetado con **PyWebView** para ejecutarse como una app independiente de Windows (sin barra de navegador).
 * **🔒 Seguridad Ante Todo:** Tu API Key nunca se guarda en el código fuente. Utiliza un inicio de sesión de sesión segura.
 * **🛡️ Filtros Inteligentes:** Ignora contenido irrelevante como tablas de "Normas APA" y se enfoca solo en la bibliografía real.
+* **👁️ Visor PDF Integrado:** Inspecciona el documento original sin salir de la aplicación.
 
 ### 🔑 Requisitos Previos
 
@@ -60,27 +75,32 @@ Para usar la app necesitas una **Groq API Key** (¡Es gratis!).
 
 ---
 
-<div align="center">
 
-### 🛠️ Tech Stack
+### 🛠️ Tecnologías Usadas
 
-| Component | Technology | Description |
+| Componente | Tecnología | Descripción |
 | :--- | :--- | :--- |
-| **Language** | Python 3.10 | Core logic |
-| **Frontend** | Streamlit | UI & State Management |
-| **AI Inference** | Groq API | Ultra-low latency Llama 3 access |
-| **PDF Engine** | PyMuPDF (Fitz) | High-performance PDF parsing |
-| **Desktop Wrapper** | PyWebView | Native window container |
+| **Lenguaje** | Python 3.10 | Lógica principal |
+| **Frontend** | Streamlit | UI y gestión de estados |
+| **Inferencia de IA** | API Groq | Acceso a Llama 3 con latencia ultrabaja |
+| **Motor PDF** | PyMuPDF (Fitz) | Análisis de PDF de alto rendimiento |
+| **Desktop Wrapper** | PyWebView | Contenedor de ventanas nativo |
+| **Herramienta de compilación** | PyInstaller | Compilación a `.exe` |
 
-<br>
+---
 
-### 📥 Installation
+### 📥 Installation / Instalación
 
-Clone the repository and install dependencies:
+* Clone the repository and install dependencies:
+
 ```bash
-git clone [https://github.com/Gymber1/Biblioteca-Groq-App.git](https://github.com/Gymber1/Biblioteca-Groq-App.git)
+git clone https://github.com/Gymber1/Biblioteca-Groq-App.git
 cd Biblioteca-Groq-App
 pip install -r requirements.txt
-Run the app locally:
+```
+* Run the app locally:
+
+```bash
 streamlit run app.py
+```
 </div>
