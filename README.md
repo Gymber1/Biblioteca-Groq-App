@@ -1,58 +1,77 @@
-⚡ Biblio-Groq: AI-Powered Reference Extractor
-A modern desktop application designed to automatically extract, fix, and format bibliographic references from academic syllabi (PDFs). Powered by the speed of Groq and the intelligence of Llama 3.
+<div align="center">
 
-🚀 Key Features
-Advanced AI Engine: Utilizes Llama 3.3 70B (via Groq) for deep semantic analysis and precise extraction.
+# ⚡ Biblio-Groq
+### Extractor Inteligente de Referencias Bibliográficas
 
-OCR Correction: Intelligent detection and repair of OCR scanning errors (e.g., fixing broken characters or misspellings).
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
+![Groq](https://img.shields.io/badge/AI-Groq%20Llama%203-f55036?style=for-the-badge)
+![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
-Native Desktop Experience: Wrapped with PyWebView to run as a standalone Windows application (no browser toolbar).
+<br>
 
-Interactive Dashboard: Modern UI built with Streamlit, featuring dark mode, result cards, and one-click copy functionality.
+**Una herramienta de escritorio moderna que utiliza Inteligencia Artificial para extraer, limpiar y estructurar bibliografía académica desde archivos PDF.**
 
-Integrated PDF Viewer: Built-in modal viewer to inspect the original document without leaving the app.
+[English](#-english-version) | [Español](#-versión-en-español)
 
-Security First: Secure API Key management. Credentials are never hardcoded; they are requested at runtime via a secure session login.
+</div>
 
-Smart Filtering: Logical algorithms to ignore table contents or irrelevant mentions (like "APA Style" headers) and focus strictly on the bibliography section.
+---
 
-🛠️ Tech Stack
-Python 3.10+
+## 🇺🇸 English Version
 
-Streamlit: Reactive Frontend framework.
+**Biblio-Groq** is a desktop application designed to solve a common academic problem: extracting messy bibliographic references from syllabi (PDFs). It combines the speed of **Groq** with the reasoning of **Llama 3.3** to detect, correct OCR errors, and format references into clean JSON data.
 
-Groq API: Ultra-low latency AI inference.
+### 🚀 Key Features
 
-PyMuPDF (Fitz): PDF processing and rendering.
+* **🧠 Advanced AI Engine:** Powered by **Llama 3.3 70B (via Groq)** for deep semantic understanding.
+* **✨ OCR Correction:** Automatically fixes scanning errors (e.g., converts `?ujo` to `Flujo`).
+* **🖥️ Native Experience:** Packaged with **PyWebView** to run as a standalone Windows app (no browser UI).
+* **🔒 Security First:** Your API Key is never stored in the source code. It uses a secure session login.
+* **🛡️ Smart Filtering:** Ignores irrelevant content like "APA Guidelines" tables and focuses only on the actual bibliography.
+* **👁️ Built-in PDF Viewer:** Inspect the original document without leaving the app.
 
-PyInstaller & PyWebView: Executable compilation (.exe) and native window encapsulation.
+### 🛠️ Tech Stack
 
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Language** | Python 3.10 | Core logic |
+| **Frontend** | Streamlit | UI & State Management |
+| **AI Inference** | Groq API | Ultra-low latency Llama 3 access |
+| **PDF Engine** | PyMuPDF (Fitz) | High-performance PDF parsing |
+| **Desktop Wrapper** | PyWebView | Native window container |
+| **Build Tool** | PyInstaller | Compilation to `.exe` |
 
-⚡ Biblio-Groq: Extractor Inteligente de Referencias
-Una aplicación de escritorio moderna diseñada para extraer, corregir y formatear automáticamente referencias bibliográficas desde sílabos académicos en formato PDF. Potenciada por la velocidad de Groq y la inteligencia de Llama 3.
+---
 
-🚀 Características Principales
-Motor de IA Avanzado: Utiliza Llama 3.3 70B (via Groq) para un análisis semántico profundo y extracción precisa.
+## 🇪🇸 Versión en Español
 
-Corrección de OCR: Capacidad para detectar y reparar errores de escritura comunes en PDFs escaneados (ej: corregir "?ujo" por "Flujo").
+**Biblio-Groq** es una aplicación de escritorio diseñada para resolver un problema académico común: extraer referencias bibliográficas desordenadas de sílabos (PDFs). Combina la velocidad de **Groq** con el razonamiento de **Llama 3.3** para detectar, corregir errores de OCR y formatear las referencias en datos JSON limpios.
 
-Interfaz Nativa (Desktop): Empaquetado con PyWebView para ofrecer una experiencia de programa de escritorio independiente (sin barra de navegador).
+### 🚀 Características Principales
 
-Dashboard Interactivo: Interfaz gráfica construida con Streamlit, con modo oscuro, tarjetas de resultados y botones de copiado rápido.
+* **🧠 Motor de IA Avanzado:** Impulsado por **Llama 3.3 70B (vía Groq)** para una comprensión semántica profunda.
+* **✨ Corrección de OCR:** Corrige automáticamente errores de escaneo (ej: convierte `?ujo` en `Flujo`).
+* **🖥️ Experiencia Nativa:** Empaquetado con **PyWebView** para ejecutarse como una app independiente de Windows (sin barra de navegador).
+* **🔒 Seguridad Ante Todo:** Tu API Key nunca se guarda en el código fuente. Utiliza un inicio de sesión de sesión segura.
+* **🛡️ Filtros Inteligentes:** Ignora contenido irrelevante como tablas de "Normas APA" y se enfoca solo en la bibliografía real.
+* **👁️ Visor PDF Integrado:** Inspecciona el documento original sin salir de la aplicación.
 
-Visor PDF Integrado: Permite visualizar el documento original dentro de la aplicación mediante ventanas modales sin salir del flujo de trabajo.
+### 🛠️ Tecnologías Usadas
 
-Seguridad Primero: Gestión segura de API Keys. La clave no se almacena en el código fuente; se solicita al usuario en tiempo de ejecución mediante una sesión encriptada.
+```python
+# Resumen Técnico
+Frontend  = "Streamlit"
+AI_Model  = "Llama-3.3-70b-versatile (Groq)"
+PDF_Tools = "PyMuPDF"
+Desktop   = "PyWebView + PyInstaller"
+<div align="center">
 
-Filtros Inteligentes: Algoritmos lógicos para ignorar tablas de contenido o menciones irrelevantes (como "Normas APA") y centrarse solo en la bibliografía real.
-
-🛠️ Tecnologías Usadas
-Python 3.10+
-
-Streamlit: Frontend reactivo.
-
-Groq API: Inferencia de IA de ultra-baja latencia.
-
-PyMuPDF (Fitz): Procesamiento y lectura de archivos PDF.
-
-PyInstaller & PyWebView: Compilación a ejecutable (.exe) y encapsulamiento en ventana nativa de Windows.
+📥 Installation / Instalación
+Clone the repository and install dependencies:
+git clone [https://github.com/Gymber1/Gymber1-Biblioteca-Groq-App.git](https://github.com/Gymber1/Gymber1-Biblioteca-Groq-App.git)
+cd Gymber1-Biblioteca-Groq-App
+pip install -r requirements.txt
+Run the app locally:
+streamlit run app.py
+</div>
