@@ -3,3 +3,5 @@ groq
 pymupdf
 pywebview
 pyinstaller
+requests 
+beautifulsoup4 
