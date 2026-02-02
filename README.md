@@ -29,18 +29,13 @@
 * **🖥️ Native Experience:** Packaged with **PyWebView** to run as a standalone Windows app (no browser UI).
 * **🔒 Security First:** Your API Key is never stored in the source code. It uses a secure session login.
 * **🛡️ Smart Filtering:** Ignores irrelevant content like "APA Guidelines" tables and focuses only on the actual bibliography.
-* **👁️ Built-in PDF Viewer:** Inspect the original document without leaving the app.
 
-### 🛠️ Tech Stack
+### 🔑 Prerequisites
 
-| Component | Technology | Description |
-| :--- | :--- | :--- |
-| **Language** | Python 3.10 | Core logic |
-| **Frontend** | Streamlit | UI & State Management |
-| **AI Inference** | Groq API | Ultra-low latency Llama 3 access |
-| **PDF Engine** | PyMuPDF (Fitz) | High-performance PDF parsing |
-| **Desktop Wrapper** | PyWebView | Native window container |
-| **Build Tool** | PyInstaller | Compilation to `.exe` |
+To use this app, you need a **Groq API Key** (It's free!).
+1. Go to **[console.groq.com/keys](https://console.groq.com/keys)**.
+2. Login and click "Create API Key".
+3. Copy your key (starts with `gsk_...`) and paste it into the app.
 
 ---
 
@@ -55,20 +50,34 @@
 * **🖥️ Experiencia Nativa:** Empaquetado con **PyWebView** para ejecutarse como una app independiente de Windows (sin barra de navegador).
 * **🔒 Seguridad Ante Todo:** Tu API Key nunca se guarda en el código fuente. Utiliza un inicio de sesión de sesión segura.
 * **🛡️ Filtros Inteligentes:** Ignora contenido irrelevante como tablas de "Normas APA" y se enfoca solo en la bibliografía real.
-* **👁️ Visor PDF Integrado:** Inspecciona el documento original sin salir de la aplicación.
 
-### 🛠️ Tecnologías Usadas
+### 🔑 Requisitos Previos
 
-```python
-# Resumen Técnico
-Frontend  = "Streamlit"
-AI_Model  = "Llama-3.3-70b-versatile (Groq)"
-PDF_Tools = "PyMuPDF"
-Desktop   = "PyWebView + PyInstaller"
+Para usar la app necesitas una **Groq API Key** (¡Es gratis!).
+1. Ve a **[console.groq.com/keys](https://console.groq.com/keys)**.
+2. Inicia sesión y crea una nueva clave ("Create API Key").
+3. Copia tu clave (empieza con `gsk_...`) y pégala al abrir la app.
+
+---
+
 <div align="center">
 
-📥 Installation / Instalación
+### 🛠️ Tech Stack
+
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Language** | Python 3.10 | Core logic |
+| **Frontend** | Streamlit | UI & State Management |
+| **AI Inference** | Groq API | Ultra-low latency Llama 3 access |
+| **PDF Engine** | PyMuPDF (Fitz) | High-performance PDF parsing |
+| **Desktop Wrapper** | PyWebView | Native window container |
+
+<br>
+
+### 📥 Installation
+
 Clone the repository and install dependencies:
+```bash
 git clone [https://github.com/Gymber1/Biblioteca-Groq-App.git](https://github.com/Gymber1/Biblioteca-Groq-App.git)
 cd Biblioteca-Groq-App
 pip install -r requirements.txt
