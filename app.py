@@ -3,6 +3,9 @@ import fitz  # PyMuPDF
 from groq import Groq
 import json
 import base64
+import re
+import requests
+from bs4 import BeautifulSoup
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Ref+ Groq", page_icon="⚡", layout="wide")
@@ -22,20 +25,19 @@ st.markdown("""
         border: 2px dashed #f43f5e;
         border-radius: 15px; padding: 20px; text-align: center;
     }
-    [data-testid="stFileUploader"] label { display: none; }
     
-    /* TARJETAS */
+    /* TARJETAS DE RESULTADOS */
     [data-testid="stVerticalBlockBorderWrapper"] {
         background-color: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 15px !important; margin-bottom: 15px;
     }
     
-    /* TEXTOS */
-    .title-code .stCode { font-size: 18px !important; font-weight: bold !important; color: #f43f5e !important; }
-    h1, h2, h3 { color: #f8fafc !important; }
-    .stCaption { color: #94a3b8 !important; text-transform: uppercase; font-size: 10px; font-weight: bold; }
-    .stCode { font-size: 12px !important; }
+    /* CÓDIGO (Botones de copia) */
+    .stCode { font-family: 'Source Code Pro', monospace !important; font-size: 14px !important; }
     
-    /* BOTONES */
+    /* ETIQUETAS PEQUEÑAS */
+    .stCaption { color: #94a3b8 !important; text-transform: uppercase; font-size: 11px; font-weight: bold; margin-bottom: 0px !important; margin-top: 5px !important; }
+    
+    /* BOTONES ROJOS */
     div.stButton > button {
         background-color: #f43f5e; color: white; font-weight: bold; border: none; transition: all 0.3s;
     }
@@ -44,6 +46,39 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- FUNCIONES ---
+
+def escanear_enlaces(texto):
+    """Analiza enlaces para dar contexto a la IA sobre si es basura o material académico"""
+    urls = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', texto)
+    urls = list(set(urls)) 
+    
+    info_web = ""
+    if urls:
+        with st.status("🌐 Analizando enlaces externos...", expanded=True) as status:
+            for url in urls:
+                if not url.startswith('http'): url = 'http://' + url
+                try:
+                    status.write(f"Verificando: {url[:40]}...")
+                    headers = {'User-Agent': 'Mozilla/5.0'}
+                    # Timeout rápido de 2s para no trabar la app
+                    response = requests.get(url, headers=headers, timeout=2)
+                    
+                    if response.status_code == 200:
+                        content_type = response.headers.get('Content-Type', '').lower()
+                        if 'pdf' in content_type:
+                            titulo_web = "ARCHIVO PDF (Alta probabilidad de ser Libro/Paper)"
+                        else:
+                            soup = BeautifulSoup(response.text, 'html.parser')
+                            titulo_web = soup.title.string.strip() if soup.title else "Web General"
+                        
+                        info_web += f"- URL: {url} | TIPO DETECTADO: {titulo_web}\n"
+                    else:
+                        info_web += f"- URL: {url} (No accesible, ignorar si no es obvio)\n"
+                except:
+                    info_web += f"- URL: {url} (Error conexión)\n"
+            status.update(label="✅ Enlaces procesados", state="complete", expanded=False)
+    return info_web
+
 def extraer_json_seguro(texto_ia):
     try:
         inicio = texto_ia.find('[')
@@ -64,127 +99,114 @@ def procesar_pdf(pdf_file):
     bytes_data = pdf_file.getvalue()
     doc = fitz.open(stream=bytes_data, filetype="pdf")
     texto_completo = ""
-    encontrado = False
-    total_paginas = len(doc)
-    
-    for i, pagina in enumerate(doc):
-        texto = pagina.get_text()
-        # Filtro estricto anti-tabla
-        if "REFERENCIAS BIBLIOGRÁFICAS" in texto.upper() or "BIBLIOGRAFÍA" in texto.upper():
-            lines = texto.split('\n')
-            for line in lines:
-                clean_line = line.strip().upper()
-                es_titulo_real = ("REFERENCIAS BIBLIOGRÁFICAS" in clean_line) or (clean_line == "BIBLIOGRAFÍA")
-                es_tabla_falsa = "APA" in clean_line
-                if es_titulo_real and not es_tabla_falsa:
-                    encontrado = True
-                    break
-        if i == total_paginas - 1 and not encontrado: encontrado = True 
-        if encontrado: texto_completo += texto + "\n"
+    for pagina in doc:
+        texto_completo += pagina.get_text() + "\n"
     
     page = doc.load_page(0)
     pix = page.get_pixmap()
     img_bytes = pix.tobytes("png")
     return texto_completo, img_bytes
 
-# --- GESTIÓN DE SESIÓN (LOGIN) ---
-if 'api_key_valid' not in st.session_state:
-    st.session_state.api_key_valid = False
-if 'groq_key' not in st.session_state:
-    st.session_state.groq_key = ""
+# --- GESTIÓN DE SESIÓN ---
+if 'api_key_valid' not in st.session_state: st.session_state.api_key_valid = False
+if 'groq_key' not in st.session_state: st.session_state.groq_key = ""
 
-# --- SIDEBAR INTELIGENTE ---
+# --- SIDEBAR ---
 with st.sidebar:
     if not st.session_state.api_key_valid:
-        # ESTADO 1: NO HAY CLAVE (Login)
         st.title("🔐 Configuración")
-        st.markdown("Ingresa tu llave de Groq para activar el sistema.")
-        
+        st.markdown("Ingresa tu llave de Groq para activar.")
         input_key = st.text_input("API Key (gsk_...)", type="password")
-        
         if st.button("🚀 Entrar", use_container_width=True):
             if input_key.startswith("gsk_"):
                 st.session_state.groq_key = input_key
                 st.session_state.api_key_valid = True
-                st.rerun() # <--- ESTO RECARGA LA PÁGINA Y OCULTA EL INPUT
+                st.rerun()
             else:
                 st.error("La clave debe empezar con 'gsk_'")
-        
-        st.divider()
-        st.caption("¿No tienes clave? Consíguela gratis en console.groq.com")
-        
     else:
-        # ESTADO 2: YA HAY CLAVE (Menú Normal)
-        st.title("Biblioteca - Referencias ⚡")
-        st.caption("Conectado con Llama 3")
-        st.divider()
-        
-        # Placeholder para el botón de visualizar (se llena desde el main)
+        st.title("Biblioteca ⚡")
         placeholder_boton = st.empty()
-        
-        st.info("💡 Arrastra el PDF al recuadro grande.")
-        
         st.divider()
-        # Botón para salir y volver a poner clave
         if st.button("🔴 Cerrar Sesión", use_container_width=True):
             st.session_state.api_key_valid = False
             st.session_state.groq_key = ""
             st.rerun()
 
-# --- BLOQUEO DE SEGURIDAD ---
-# Si no hay clave válida, detenemos la ejecución aquí.
 if not st.session_state.api_key_valid:
-    st.markdown("""
-    <div style='text-align: center; padding: 50px;'>
-        <h1>👋 Bienvenido a Ref+ Groq</h1>
-        <p>Por favor, ingresa tu API Key en la barra lateral para comenzar.</p>
-    </div>
-    """, unsafe_allow_html=True)
-    st.stop() # DETIENE TODO EL CÓDIGO DE ABAJO
+    st.markdown("<h1 style='text-align:center'>👋 Bienvenido a Ref+ Groq</h1>", unsafe_allow_html=True)
+    st.stop()
 
-# --- A PARTIR DE AQUÍ SOLO SE EJECUTA SI HAY CLAVE ---
 client = Groq(api_key=st.session_state.groq_key)
 
-# Inicializar variables de memoria
 if 'archivo_procesado' not in st.session_state: st.session_state.archivo_procesado = None
 if 'datos_libros' not in st.session_state: st.session_state.datos_libros = None
 if 'img_preview' not in st.session_state: st.session_state.img_preview = None
 
 # --- UI PRINCIPAL ---
-st.markdown("## User Dashboard")
-st.markdown("##### 📂 Sube tu PDF Aquí")
+st.markdown("## Dashboard de Referencias")
 uploaded_file = st.file_uploader("Arrastra tu sílabo aquí", type="pdf")
 
 if uploaded_file is not None:
     file_id = f"{uploaded_file.name}_{uploaded_file.size}"
     
-    # Inyectamos el botón en el hueco que dejamos en la sidebar
     with placeholder_boton.container():
         st.success("✅ Archivo Cargado")
-        if st.button("👁️ Visualizar PDF", use_container_width=True):
+        if st.button("👁️ PDF Original", use_container_width=True):
             visualizar_pdf_modal(uploaded_file.getvalue())
 
-    col_izq, col_der = st.columns([1.5, 3.5])
-
-    # Lógica de procesamiento (Solo si es archivo nuevo)
     if st.session_state.archivo_procesado != file_id:
-        with st.spinner("🚀 Groq analizando..."):
+        
+        texto_pdf, img_preview = procesar_pdf(uploaded_file)
+        
+        # 1. Escanear enlaces
+        contexto_web = escanear_enlaces(texto_pdf)
+        
+        with st.spinner("🧠 Groq analizando (Recuperando años perdidos)..."):
             try:
-                texto_ref, img_preview = procesar_pdf(uploaded_file)
+                # --- AQUÍ ESTÁ LA MAGIA DE LOS AÑOS ---
+                prompt_usuario = f"""
+                Eres un Bibliotecario Académico Experto con memoria enciclopédica.
                 
+                TU MISIÓN: Completar la bibliografía del sílabo, rellenando datos faltantes con tu conocimiento.
+
+                REGLAS DE ORO (AÑOS Y DATOS):
+                1. **DETECTAR**: Si el año está en el PDF, úsalo.
+                2. **AUTO-COMPLETAR (CRUCIAL)**: Si el PDF NO tiene el año (o dice s/f), **TÚ DEBES PONER EL AÑO REAL** usando tu conocimiento.
+                   - Ejemplo: Si ves "Boudeville - La región económica", tú sabes que es de ~1961. ¡Pon "1961" (o la fecha de la edición más conocida)!
+                   - **PROHIBIDO** dejar el campo "Anio" vacío o poner "Sin especificar" si es un libro conocido.
+                   - Lo mismo para Ciudad y Editorial. ¡Rellénalos!
+
+                REGLAS DE FILTRADO (LINKS):
+                - Videos/Blogs/Wikis -> BASURA (Ignorar).
+                - Libros/Papers/Tesis -> VÁLIDO.
+
+                TEXTO PDF:
+                {texto_pdf}
+                
+                INFO WEB:
+                {contexto_web}
+                
+                SALIDA JSON OBLIGATORIA:
+                [
+                    {{
+                        "Titulo": "Título Completo",
+                        "Autor": "Autor",
+                        "Editorial": "Editorial (Rellenar si falta)",
+                        "Ciudad": "Ciudad (Rellenar si falta)",
+                        "Anio": "AAAA (¡OBLIGATORIO RELLENAR!)",
+                        "Tipo": "Libro/Paper"
+                    }}
+                ]
+                """
+
                 chat_completion = client.chat.completions.create(
                     messages=[
-                        {"role": "system", "content": "Eres experto en bibliografía. Corrige errores OCR."},
-                        {"role": "user", "content": f"""
-                            Extrae referencias finales (Ignora tablas APA).
-                            Corrige errores (ej: '?ujo' -> 'Flujo').
-                            Formato JSON estricto: [{{Titulo, Autor, Editorial, Ciudad, Anio, ISBN}}]
-                            Texto: {texto_ref}
-                        """}
+                        {"role": "system", "content": "Eres un experto en bibliografía que SIEMPRE completa los años y editoriales faltantes usando su base de datos interna."},
+                        {"role": "user", "content": prompt_usuario}
                     ],
                     model="llama-3.3-70b-versatile",
-                    temperature=0.1,
-                    stream=False,
+                    temperature=0.2 # Un poco de creatividad para recordar fechas
                 )
                 
                 datos = extraer_json_seguro(chat_completion.choices[0].message.content)
@@ -196,41 +218,40 @@ if uploaded_file is not None:
                 st.error(f"Error: {e}")
                 st.session_state.datos_libros = []
 
-    # Mostrar Resultados
+    # --- MOSTRAR RESULTADOS (Con Botones de Copiar) ---
     datos = st.session_state.datos_libros
     img_preview = st.session_state.img_preview
-
-    with col_izq:
-        st.markdown("### 📊 Estado")
-        if datos: st.metric("Libros", len(datos))
-        else: st.metric("Estado", "0 Ref.")
-        st.divider()
+    
+    c1, c2 = st.columns([1.5, 3.5])
+    with c1:
+        st.markdown("### 📊 Resumen")
+        if datos: st.metric("Referencias Válidas", len(datos))
         if img_preview: st.image(img_preview, caption="Portada", use_container_width=True)
-
-    with col_der:
-        st.markdown("### 📋 Resultados")
+    
+    with c2:
+        st.markdown("### 📚 Lista Procesada")
         if datos:
             for libro in datos:
                 with st.container(border=True):
-                    st.caption("TÍTULO (Click icono para copiar)")
-                    st.markdown('<div class="title-code">', unsafe_allow_html=True)
+                    # Título grande en st.code para copiar fácil
+                    st.caption(f"TÍTULO ({libro.get('Tipo', 'Ref')})")
                     st.code(libro.get('Titulo', '---'), language=None)
-                    st.markdown('</div>', unsafe_allow_html=True)
                     
-                    c1, c2 = st.columns(2)
-                    with c1:
-                        st.caption("AUTOR"); st.code(libro.get('Autor', ''), language=None)
-                        st.caption("EDITORIAL"); st.code(libro.get('Editorial', ''), language=None)
-                    with c2:
-                        st.caption("AÑO"); st.code(libro.get('Anio', ''), language=None)
-                        st.caption("CIUDAD"); st.code(libro.get('Ciudad', ''), language=None)
-                    
-                    if libro.get('ISBN') and libro.get('ISBN') != "No encontrado":
-                        st.divider(); st.caption("ISBN"); st.code(libro.get('ISBN'), language=None)
+                    # Columnas para los detalles
+                    col_a, col_b = st.columns(2)
+                    with col_a:
+                        st.caption("AUTOR")
+                        st.code(libro.get('Autor', '---'), language=None)
+                        st.caption("EDITORIAL")
+                        st.code(libro.get('Editorial', '---'), language=None)
+                    with col_b:
+                        st.caption("AÑO")
+                        st.code(libro.get('Anio', '---'), language=None)
+                        st.caption("CIUDAD")
+                        st.code(libro.get('Ciudad', '---'), language=None)
         elif st.session_state.archivo_procesado == file_id:
-            st.warning("No se encontraron referencias válidas.")
-
+            st.warning("Se analizaron los textos y enlaces, pero no se encontraron libros o papers válidos.")
 else:
     st.session_state.archivo_procesado = None
     placeholder_boton.empty()
-    st.info("👆 Esperando archivo...")
+    st.info("👆 Sube un archivo para comenzar")
