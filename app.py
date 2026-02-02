@@ -7,10 +7,8 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-# --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Ref+ Groq", page_icon="⚡", layout="wide")
 
-# --- ESTILOS CSS ---
 st.markdown("""
     <style>
     /* FONDO */
@@ -45,7 +43,6 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- FUNCIONES ---
 
 def escanear_enlaces(texto):
     """Analiza enlaces para dar contexto a la IA sobre si es basura o material académico"""
@@ -60,7 +57,6 @@ def escanear_enlaces(texto):
                 try:
                     status.write(f"Verificando: {url[:40]}...")
                     headers = {'User-Agent': 'Mozilla/5.0'}
-                    # Timeout rápido de 2s para no trabar la app
                     response = requests.get(url, headers=headers, timeout=2)
                     
                     if response.status_code == 200:
@@ -107,11 +103,9 @@ def procesar_pdf(pdf_file):
     img_bytes = pix.tobytes("png")
     return texto_completo, img_bytes
 
-# --- GESTIÓN DE SESIÓN ---
 if 'api_key_valid' not in st.session_state: st.session_state.api_key_valid = False
 if 'groq_key' not in st.session_state: st.session_state.groq_key = ""
 
-# --- SIDEBAR ---
 with st.sidebar:
     if not st.session_state.api_key_valid:
         st.title("🔐 Configuración")
@@ -164,7 +158,6 @@ if uploaded_file is not None:
         
         with st.spinner("🧠 Groq analizando (Recuperando años perdidos)..."):
             try:
-                # --- AQUÍ ESTÁ LA MAGIA DE LOS AÑOS ---
                 prompt_usuario = f"""
                 Eres un Bibliotecario Académico Experto con memoria enciclopédica.
                 
@@ -206,7 +199,7 @@ if uploaded_file is not None:
                         {"role": "user", "content": prompt_usuario}
                     ],
                     model="llama-3.3-70b-versatile",
-                    temperature=0.2 # Un poco de creatividad para recordar fechas
+                    temperature=0.2
                 )
                 
                 datos = extraer_json_seguro(chat_completion.choices[0].message.content)
@@ -218,7 +211,6 @@ if uploaded_file is not None:
                 st.error(f"Error: {e}")
                 st.session_state.datos_libros = []
 
-    # --- MOSTRAR RESULTADOS (Con Botones de Copiar) ---
     datos = st.session_state.datos_libros
     img_preview = st.session_state.img_preview
     
@@ -233,11 +225,9 @@ if uploaded_file is not None:
         if datos:
             for libro in datos:
                 with st.container(border=True):
-                    # Título grande en st.code para copiar fácil
                     st.caption(f"TÍTULO ({libro.get('Tipo', 'Ref')})")
                     st.code(libro.get('Titulo', '---'), language=None)
                     
-                    # Columnas para los detalles
                     col_a, col_b = st.columns(2)
                     with col_a:
                         st.caption("AUTOR")
