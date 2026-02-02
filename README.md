@@ -69,8 +69,8 @@ Desktop   = "PyWebView + PyInstaller"
 
 📥 Installation / Instalación
 Clone the repository and install dependencies:
-git clone [https://github.com/Gymber1/Gymber1-Biblioteca-Groq-App.git](https://github.com/Gymber1/Gymber1-Biblioteca-Groq-App.git)
-cd Gymber1-Biblioteca-Groq-App
+git clone [https://github.com/Gymber1/Biblioteca-Groq-App.git](https://github.com/Gymber1/Biblioteca-Groq-App.git)
+cd Biblioteca-Groq-App
 pip install -r requirements.txt
 Run the app locally:
 streamlit run app.py
